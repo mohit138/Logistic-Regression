@@ -54,10 +54,15 @@ def prediction(h,y):
 
 print(wine_df.isnull().sum())
 data=wine_df.to_numpy()
-X=data[:,1:12]
+X=data[:,1:4]
+
+#adding terms with x^2
+X2=np.square(X)
+X=np.append(X,X2,axis=1)
+
 one=np.ones((X.shape[0],1))
 X=np.append(one,X,axis=1)
-print(X)
+print(X.shape)
 y=data[:,12:13]
 initial_theta=np.zeros((X.shape[1],1))
 
@@ -68,7 +73,7 @@ J_hist = np.zeros((max_itr , op_cases))
 
 for i in range(op_cases):
     [theta[:,i:i+1],J_hist[:,i:i+1]]=grad_descent(X,y==i+3,initial_theta,max_itr,alpha)
-    #print(J_hist[:,i:i+1])
+    print(J_hist[:,i:i+1])
 print("\n\n",theta.shape)
 #print("\n\n", J_hist)
 

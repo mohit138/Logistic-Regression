@@ -10,16 +10,17 @@ op_cases=7
 wine_df = pd.read_csv("wineQualityImputed.csv")
 
 def prediction(h,y):
-    h_out=np.zeros((h.shape[0],h.shape[1]))
+    h_out=np.zeros((h.shape[0],1))
     add=0
     for i in range(h.shape[0]):
         result = np.where(h[i:i+1,:] == np.amax(h[i:i+1,:],axis=1))
         list_of_cordinates= list(zip(result[0],result[1]))
-        print(list_of_cordinates)
+        #print(list_of_cordinates)
         cord = list_of_cordinates[0][1]
-        h_out[i:i+1,cord]=1
-        print("\n {}   {}  ".format(h[i:i+1,:] , y[i:i+1,:]))
-        if np.all(h_out[i:i+1,:]==y[i:i+1,:]):
+        #print(cord)
+        h_out[i:i+1,0:1]=3+cord
+        print("\n {}   {}  ".format( h_out[i:i+1,:], y[i:i+1,:]))
+        if np.all((h_out[i:i+1,0:1])==y[i:i+1,0:1]):
             add=add+1
 
     accuracy = add / h.shape[0] *100
@@ -28,9 +29,13 @@ def prediction(h,y):
 
 theta = theta_df.to_numpy()
 #print(theta.shape)
-data = wine_df.sample(frac=.05)
+data = wine_df.sample(frac=.005)
 sample_data=data.to_numpy()
-X_s=sample_data[:,1:12]
+X_s=sample_data[:,1:4]
+
+X2=np.square(X_s)
+X_s=np.append(X_s,X2,axis=1)
+
 one=np.ones((X_s.shape[0],1))
 X_s=np.append(one,X_s,axis=1)
 #print(X_s.shape)
