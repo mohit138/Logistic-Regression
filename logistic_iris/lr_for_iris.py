@@ -1,9 +1,8 @@
 #logistic regression for iris data
-
-
+# data analysis for IRIS
 import pandas as pd
 import numpy as np
-import sqlite3
+
 import matplotlib.pyplot as plt
 op_cases= 3 
 iris_df = pd.read_csv("Iris.csv",index_col='Id')
