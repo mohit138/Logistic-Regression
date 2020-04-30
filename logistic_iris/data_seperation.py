@@ -3,7 +3,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt
+
 from numpy import savetxt
 op_cases= 3 
 iris_df = pd.read_csv("Iris.csv",index_col='Id')

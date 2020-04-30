@@ -146,6 +146,17 @@ max_itr = 150
 alpha = .1
 lam=0
 
+# using degree 3 for sepal data
+# seplal width^3
+#x_train[:,0:1] = normalise(np.power(x_train[:,2:3],3))
+#x_val[:,0:1] = normalise(np.power(x_val[:,2:3],3))
+#x_test[:,0:1] = normalise(np.power(x_test[:,2:3],3))
+
+# seplal length^3
+#x_train[:,1:2] = normalise(np.power(x_train[:,1:2],3))
+#x_val[:,1:2] = normalise(np.power(x_val[:,1:2],3))
+#x_test[:,1:2] = normalise(np.power(x_test[:,1:2],3))
+
 [theta,j_hist] = grad_descent_vec(x_train, y_train, initial_theta,0, max_itr, alpha)
 
 i=np.arange(1,151,1)
