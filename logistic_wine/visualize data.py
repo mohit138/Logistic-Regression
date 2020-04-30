@@ -1,4 +1,5 @@
 # lets visualize data
+# byplotting in pairs !
 
 import pandas as pd
 import numpy as np
