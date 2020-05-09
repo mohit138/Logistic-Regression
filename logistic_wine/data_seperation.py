@@ -8,6 +8,14 @@ from numpy import savetxt
 op_cases= 7 
 iris_df = pd.read_csv("wineQualityImputed.csv")
 
+# dropping 1000 data with quality =5
+drop_indices = np.random.choice(iris_df[iris_df['quality']==5].index , 1000,replace=False)
+iris_df = iris_df.drop(drop_indices)
+
+# dropping 1200 data with quality =6
+drop_indices = np.random.choice(iris_df[iris_df['quality']==6].index , 1200,replace=False)
+iris_df = iris_df.drop(drop_indices)
+
 def string_to_num(x):
     if x=='white':
         return 1
