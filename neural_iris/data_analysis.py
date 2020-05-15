@@ -28,89 +28,11 @@ y_test = data_te[:,5:8]
 #pd.plotting.scatter_matrix(iris_df)
 #plt.show()
 
-def costFunction(X,y,theta,lam):
-    m=X.shape[0]
-    prod=np.zeros((X.shape[0],theta.shape[1]))
-    
-    prod=X.dot(theta)
-    h=1/(1+np.exp(-prod))
-    
-    J = (-1/m)*np.sum( y*np.log(h + 1e-20) + (1-y)*np.log(1-h + 1e-20)) + (lam/(2*m))*((np.sum(theta))-np.sum(theta[0,:]));
-    return [J,h]
-
-
-def grad_descent_vec(X,y,theta,lam,max_itr,alpha):
-    m=X.shape[0]
-    J_hist=np.zeros((max_itr,1))
-    for i in range(max_itr):
-        [J,h]=costFunction(X,y,theta,lam)
-        dif = h-y
-
-        tho = lam/m*theta[:,0:1]
-        theta = theta - (alpha/m)*((X.T).dot(dif) + lam/m*theta) 
-        theta[:,0:1] = theta[:,0:1] - tho
-        J_hist[i]=J
-    return [theta,J_hist]
 
 
 
 
-# the function to find degree for best results. 
-def lc_degree(d_max,xT,xV,yT,yV,lam,max_itr,alpha,col):
-    power=1
-    alpha =.01
-    max_itr = 1000
-    ma=yV.shape[0]
-    J_t_error = np.zeros((d_max,1))
-    J_v_error = np.zeros((d_max,1))
-    for i in range(d_max):
-        initial_theta = np.ones((xT.shape[1],yT.shape[1]))
-        [theta,j_hist] = grad_descent_vec(xT, yT, initial_theta,lam, max_itr, alpha)    
-        [J_t_error[i],h] = costFunction(xT[0:ma,:], yT[0:ma,:], theta, lam)
-        [J_v_error[i],h] = costFunction(xV, yV, theta, lam)
-        fact = normalise_fact( np.append(np.power(xT,i+1) , np.power(xV,i+1),axis=0) )
-        #fact=1
-        powT = (np.power(xT,i+1))/fact
-        powV = (np.power(xV,i+1))/fact
-        xT = np.append(xT, powT,axis=1)
-        xV = np.append(xV, powV,axis=1)
-        j=np.arange(1,1001,1)
-        #plt.plot(j,j_hist)
-        #plt.show()
-        #xT = np.power(xT,i+1) / fact
-        #xV = np.power(xV,i+1) / fact
-        #print(j_hist[980:1000])
-    power = np.argmin(J_v_error)
-    i=np.arange(1,d_max+1,1)
-    plt.plot(i,J_t_error,label='Train Error')
-    plt.plot(i,J_v_error,label='Validation Error')
-    plt.legend(loc='upper left')
-    plt.title(col)
-    plt.show()
-    return power
 
-def normalise_fact(x):
-    Max = np.max(x)
-    Min = np.min(x)
-    fact = (Max-Min)
-    return fact
-
-
-def lc_lambda(limit,xT,xV,yT,yV,lam,max_itr,alpha):
-    ma=yV.shape[0]
-    J_t_error = np.zeros((limit,1))
-    J_v_error = np.zeros((limit,1))
-    for i in range(limit):
-        lam = .01*pow(2,i)
-        initial_theta = np.ones((xT.shape[1],yT.shape[1]))
-        [theta,j_hist] = grad_descent_vec(xT, yT, initial_theta,lam, max_itr, alpha)    
-        [J_t_error[i],h] = costFunction(xT[0:ma,:], yT[0:ma,:], theta, lam)
-        [J_v_error[i],h] = costFunction(xV, yV, theta, lam)
-    i=np.arange(1,limit+1,1)
-    plt.plot(i,J_t_error,label='Train Error')
-    plt.plot(i,J_v_error,label='Validation Error')
-    plt.legend(loc='upper left')
-    plt.show()
 
 def learning_curve(hlSize,numLabel,xT,xV,yT,yV,theta,lam=0):
     ma=yV.shape[0]
@@ -137,7 +59,7 @@ def cost_function_NN1(theta,hlSize,numLabel,X,y,lam=0):
     J=0
 
     t1 = theta[0:hlSize*(ipSize +1)].reshape(hlSize,ipSize+1)
-    t2 = theta[hlSize*(ipSize +1) : (hlSize*(ipSize +1)) + (numLabel*(hlSize +1)) +1].reshape(numLabel,hlSize+1)
+    t2 = theta[hlSize*(ipSize +1) : (hlSize*(ipSize +1)) + (numLabel*(hlSize +1))].reshape(numLabel,hlSize+1)
 
     tGrad1 = np.zeros(t1.shape)
     tGrad2 = np.zeros(t2.shape)
@@ -180,7 +102,7 @@ def gradient_descent_NN(X,y,theta,lam,max_itr,alpha,hlSize): # without regularis
     for i in range(max_itr):
         [J,grad,h]=cost_function_NN1(theta, hlSize, numLabel, X, y, lam)
         
-        theta = theta - (alpha/m)*(grad) 
+        theta = theta - (alpha)*(grad) 
         J_hist[i]=J
     return [theta,J_hist]
 
@@ -204,6 +126,8 @@ def gradient_check(theta,hlSize,numLabel,X,y):
         negTheta[i:i+1] = negTheta[i:i+1] - epsilon
         negJ,gr,h = cost_function_NN1(negTheta, hlSize, numLabel, X, y)
         appGrad[i]=((posJ-negJ)/(2*epsilon))
+        
+    print(posJ,negJ)
     return appGrad
 
 def prediction(h,y):
@@ -317,6 +241,7 @@ def gradient_check_(t1,t2,hlSize,numLabel,X,y):
             negJ,gr1,gr2,h = cost_function_NN1_(t1,negTheta, hlSize, numLabel, X, y)
             appGrad2[i:i+1,j:j+1]=((posJ-negJ)/(2*epsilon))
     
+    print(posJ,negJ)
     return [appGrad1,appGrad2]
 
 
@@ -328,52 +253,32 @@ theta1 = np.random.randint(1,10,(hlSize,ipSize+1))
 itheta1 = theta1*2*E0 - E0
 theta2 = np.random.randint(1,10,(numLabel,hlSize+1))
 itheta2 = theta2*2*E0 - E0
-initial_theta = np.concatenate([theta1.flat, theta2.flat])
+initial_theta = np.concatenate([itheta1.flat, itheta2.flat])
 
 lam =0
 alpha =1
-max_itr = 1000
+max_itr = 5000
 
-[J,grad1,grad2,h_train]=cost_function_NN1_(itheta1,itheta2, hlSize, numLabel, x_train, y_train)
-print(J.shape, grad1.shape,grad2.shape,h_train.shape)
+J,grad,h = cost_function_NN1(initial_theta, hlSize, numLabel, x_train, y_train)
+appGrad = gradient_check(initial_theta, hlSize, numLabel, x_train, y_train)
 
+#for i in range(grad.shape[0]):
+#    print("{}   {}".format(grad[i],appGrad[i]))
+    
 
-# checking if back propogation is working
-J , grad1,grad2,h = cost_function_NN1_(itheta1,itheta2, hlSize, numLabel, x_train, y_train)
-approxGrad1,approxGrad2 = gradient_check_(itheta1,itheta2, hlSize, numLabel, x_train, y_train)
-
-for i in range(grad1.shape[0]):
-    for j in range(grad1.shape[1]):
-        print( "{}      {} " .format(grad1[i:i+1,j:j+1] , approxGrad1[i:i+1,j:j+1]))
-        
-for i in range(grad2.shape[0]):
-    for j in range(grad2.shape[1]):
-        print( "{}      {} " .format(grad2[i:i+1,j:j+1] , approxGrad2[i:i+1,j:j+1]))
-
-print(itheta1)
-theta1,theta2,J_hist = gradient_descent_NN_(x_train, y_train, itheta1,itheta2, lam, max_itr, alpha, hlSize)
-print(theta1)
-i=np.arange(1,1001,1) 
+theta,J_hist = gradient_descent_NN(x_train, y_train, initial_theta, lam, max_itr, alpha, hlSize)
+i=np.arange(1,5001,1) 
 plt.plot(i,J_hist)
-plt.show()   
+plt.show()  
 
+learning_curve(hlSize,numLabel,x_train, x_val, y_train, y_val, theta, lam)
 
-
-#learning_curve(hlSize,numLabel,x_train, x_val, y_train, y_val, theta, lam)
-
-[J,g1,g2,h_train]=cost_function_NN1_(theta1,theta2, hlSize, numLabel, x_train, y_train)
+[J,grad,h_train]=cost_function_NN1(theta, hlSize, numLabel, x_train, y_train)
 h_train,acc=prediction(h_train,y_train)
 print("\naccuracy (train):  ",acc)
 
-[J,g1,g2,h_test]=cost_function_NN1_(theta1,theta2, hlSize, numLabel, x_test, y_test)
-print(h_test)
+[J,grad,h_test]=cost_function_NN1(theta, hlSize, numLabel, x_test, y_test)
 h_test,acc=prediction(h_test,y_test)
-
 print("\naccuracy:  ",acc)    
-
-    
 for i in range(y_test.shape[0]):
     print( "{}      {} " .format(h_test[i] , y_test[i]))
-    
- 
-    

@@ -42,7 +42,7 @@ initial_theta=np.ones((X.shape[1],y.shape[1]))
 # seperate out test set
 x_1,x_test,y_1,y_test=train_test_split(X,y,test_size=0.2)
 #split remining into train and val set
-x_train,x_val,y_train,y_val=train_test_split(x_1,y_1,test_size=.01)
+x_train,x_val,y_train,y_val=train_test_split(x_1,y_1,test_size=.2)
 
 Train = np.append(x_train,y_train,axis=1) 
 Val = np.append(x_val,y_val,axis=1)
