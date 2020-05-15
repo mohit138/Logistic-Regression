@@ -2,6 +2,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
+
 import matplotlib.pyplot as plt
 from pylab import rcParams
 from scipy.special import expit
@@ -131,8 +132,6 @@ def sigmoidGrad(z):
 
 # cost function for 1 hidden layer Neural Network
 def cost_function_NN1(theta,hlSize,numLabel,X,y,lam=0):
-    
-    
     m= X.shape[0]
     ipSize = X.shape[1]
     J=0
@@ -150,7 +149,6 @@ def cost_function_NN1(theta,hlSize,numLabel,X,y,lam=0):
     a3 = expit(z3)
     h = a3
     
-    
     J = (-1/m)*np.sum( y*np.log(h + 1e-20) + (1-y)*np.log(1-h + 1e-20)) 
     #Reg = 
     
@@ -163,7 +161,6 @@ def cost_function_NN1(theta,hlSize,numLabel,X,y,lam=0):
     for i in range(m):
         D2 = D2 + (err3[i:i+1,:].T).dot(np.append(np.ones((1,1)),a2[i:i+1,:],axis=1))
         D1 = D1 + (err2[i:i+1,:].T).dot(np.append(np.ones((1,1)),X[i:i+1,:],axis=1))
-    
     tGrad1 = D1/m
     #tGrad1[:,1:tGrad1.shape[1]] = tGrad1[:,1:tGrad1.shape[1]] + lam/m*t1[:,1:t1.shape[1]]
     tGrad2 = D2/m
@@ -171,6 +168,7 @@ def cost_function_NN1(theta,hlSize,numLabel,X,y,lam=0):
 
     #print(tGrad1, tGrad2)
     grad = np.concatenate([tGrad1.flat, tGrad2.flat])
+    
     #print(grad.shape)
     return [J,grad,h]
 
@@ -207,65 +205,6 @@ def gradient_check(theta,hlSize,numLabel,X,y):
         negJ,gr,h = cost_function_NN1(negTheta, hlSize, numLabel, X, y)
         appGrad[i]=((posJ-negJ)/(2*epsilon))
     return appGrad
-    '''
-    for i in range(t1.shape[0]):
-        
-        for j in range(t1.shape[1]):
-            posTheta = t1
-            posTheta[i:i+1,j:j+1] = posTheta[i:i+1,j:j+1] + epsilon
-            
-            # Forward propogation algorithm for pos theta
-            z2 = np.append(np.ones((m,1)),X,axis=1).dot(posTheta.T)
-            a2 = expit(z2)
-            z3 = np.append(np.ones((m,1)),a2,axis=1).dot(t2.T)
-            a3 = expit(z3)
-            h = a3
-            posJ = (-1/m)*np.sum( y*np.log(h + 1e-20) + (1-y)*np.log(1-h + 1e-20)) 
-            
-            
-            negTheta = t1
-            negTheta[i:i+1,j:j+1] = negTheta[i:i+1,j:j+1] - epsilon
-           
-            # Forward propogation algorithm for neg theta
-            z2 = np.append(np.ones((m,1)),X,axis=1).dot(negTheta.T)
-            a2 = expit(z2)
-            z3 = np.append(np.ones((m,1)),a2,axis=1).dot(t2.T)
-            a3 = expit(z3)
-            h = a3
-            negJ = (-1/m)*np.sum( y*np.log(h + 1e-20) + (1-y)*np.log(1-h + 1e-20)) 
-            
-            tGrad1[i,j] = (posJ - negJ) / (2 * epsilon)
-    
-    for i in range(t2.shape[0]):
-        for j in range(t2.shape[1]):
-            posTheta = t2
-            posTheta[i:i+1,j:j+1] = posTheta[i:i+1,j:j+1] + epsilon
-            # Forward propogation algorithm for pos theta
-            z2 = np.append(np.ones((m,1)),X,axis=1).dot(t1.T)
-            a2 = expit(z2)
-            z3 = np.append(np.ones((m,1)),a2,axis=1).dot(posTheta.T)
-            a3 = expit(z3)
-            h = a3
-            posJ = (-1/m)*np.sum( y*np.log(h + 1e-20) + (1-y)*np.log(1-h + 1e-20)) 
-            
-            negTheta = t2
-            negTheta[i:i+1,j:j+1] = negTheta[i:i+1,j:j+1] - epsilon
-    
-    
-            
-            # Forward propogation algorithm for neg theta
-            z2 = np.append(np.ones((m,1)),X,axis=1).dot(t1.T)
-            a2 = expit(z2)
-            z3 = np.append(np.ones((m,1)),a2,axis=1).dot(negTheta.T)
-            a3 = expit(z3)
-            h = a3
-            negJ = (-1/m)*np.sum( y*np.log(h + 1e-20) + (1-y)*np.log(1-h + 1e-20)) 
-            
-            tGrad2[i,j] = (posJ - negJ) / (2 * epsilon)
-    
-    
-    grad = np.concatenate([tGrad1.flat, tGrad2.flat])
-    '''
 
 def prediction(h,y):
     
@@ -289,42 +228,144 @@ def prediction(h,y):
     return [h_out, acc]
 
 
+def cost_function_NN1_(t1,t2,hlSize,numLabel,X,y,lam=0):
+    m= X.shape[0]
+    ipSize = X.shape[1]
+    J=0
+
+    #t1 = theta[0:hlSize*(ipSize +1)].reshape(hlSize,ipSize+1)
+    #t2 = theta[hlSize*(ipSize +1) : (hlSize*(ipSize +1)) + (numLabel*(hlSize +1)) +1].reshape(numLabel,hlSize+1)
+
+    tGrad1 = np.zeros(t1.shape)
+    tGrad2 = np.zeros(t2.shape)
+    # Forward propogation algorithm
+    z2 = np.append(np.ones((m,1)),X,axis =1).dot(t1.T)
+    a2 = expit(z2)
+    z3 = np.append(np.ones((m,1)),a2,axis=1).dot(t2.T)
+    a3 = expit(z3)
+    h = a3
     
+    J = (-1/m)*np.sum( y*np.log(h + 1e-20) + (1-y)*np.log(1-h + 1e-20)) 
+    #Reg = 
+    
+    # Back propogation algorithm
+    D2=np.zeros(t2.shape)
+    D1=np.zeros(t1.shape)
+    
+    err3 = h - y
+    l = t2.shape[1]
+    err2 = (err3.dot(t2[:,1:l])) * sigmoidGrad(z2) 
+    for i in range(m):
+        D2 = D2 + (err3[i:i+1,:].T).dot(np.append(np.ones((1,1)),a2[i:i+1,:],axis=1))
+        D1 = D1 + (err2[i:i+1,:].T).dot(np.append(np.ones((1,1)),X[i:i+1,:],axis=1))
+    
+    tGrad1 = D1/m
+    #tGrad1[:,1:tGrad1.shape[1]] = tGrad1[:,1:tGrad1.shape[1]] + lam/m*t1[:,1:t1.shape[1]]
+    tGrad2 = D2/m
+    #tGrad2[:,1:tGrad2.shape[1]] = tGrad2[:,1:tGrad2.shape[1]] + lam/m*t2[:,1:t2.shape[1]]
+
+    #print(tGrad1, tGrad2)
+    #grad = np.concatenate([tGrad1.flat, tGrad2.flat])
+    
+    #print(grad.shape)
+    return [J,tGrad1,tGrad2,h]
+
+def gradient_descent_NN_(X,y,t1,t2,lam,max_itr,alpha,hlSize): # without regularisation !
+    m=X.shape[0]
+    J_hist=np.zeros((max_itr,1))
+    
+    numLabel = y.shape[1]
+    for i in range(max_itr):
+        [J,g1,g2,h]=cost_function_NN1_(t1,t2, hlSize, numLabel, X, y, lam)
+        
+        #t1[:,1:5] = t1[:,1:5] - (alpha/m)*(g1[:,1:5]) 
+        #t2[:,1:13] = t2[:,1:13] - (alpha/m)*(g2[:,1:13])
+        t1 =t1 - (alpha)*g1
+        t2 =t2 - (alpha)*g2
+        
+        J_hist[i]=J
+    return [t1,t2,J_hist]
+
+def gradient_check_(t1,t2,hlSize,numLabel,X,y):
+    #m= X.shape[0]
+    #ipSize = X.shape[1]
+    appGrad1 = np.zeros(t1.shape)
+    appGrad2 = np.zeros(t2.shape)
+    #t1 = theta[0:hlSize*(ipSize +1)].reshape(hlSize,ipSize+1)
+    #t2 = theta[hlSize*(ipSize +1) : (hlSize*(ipSize +1)) + (numLabel*(hlSize +1))+1].reshape(numLabel,hlSize+1)
+
+    #tGrad1 = np.zeros(t1.shape)
+    #tGrad2 = np.zeros(t2.shape)
+    epsilon =.0001
+    
+    for i in range(t1.shape[0]):
+        for j in range(t1.shape[1]):
+            posTheta = t1
+            posTheta[i:i+1,j:j+1] = posTheta[i:i+1,j:j+1] + epsilon
+            posJ,gr1,gr2,h = cost_function_NN1_(posTheta,t2, hlSize, numLabel, X, y)
+            negTheta = t1
+            negTheta[i:i+1,j:j+1] = negTheta[i:i+1,j:j+1] - epsilon
+            negJ,gr1,gr2,h = cost_function_NN1_(negTheta,t2, hlSize, numLabel, X, y)
+            appGrad1[i:i+1,j:j+1]=((posJ-negJ)/(2*epsilon))
+    for i in range(t2.shape[0]):
+        for j in range(t2.shape[1]):
+            posTheta = t2
+            posTheta[i:i+1,j:j+1] = posTheta[i:i+1,j:j+1] + epsilon
+            posJ,gr1,gr2,h = cost_function_NN1_(t1,posTheta, hlSize, numLabel, X, y)
+            negTheta = t2
+            negTheta[i:i+1,j:j+1] = negTheta[i:i+1,j:j+1] - epsilon
+            negJ,gr1,gr2,h = cost_function_NN1_(t1,negTheta, hlSize, numLabel, X, y)
+            appGrad2[i:i+1,j:j+1]=((posJ-negJ)/(2*epsilon))
+    
+    return [appGrad1,appGrad2]
+
+
 ipSize = x_train.shape[1]
-hlSize = 3 * x_train.shape[1]
+hlSize = 5#1* x_train.shape[1]
 numLabel = y_train.shape[1]
-E0= 0.1
+E0= 0.01
 theta1 = np.random.randint(1,10,(hlSize,ipSize+1))
-theta1 = theta1*2*E0 - E0
+itheta1 = theta1*2*E0 - E0
 theta2 = np.random.randint(1,10,(numLabel,hlSize+1))
-theta2 = theta2*2*E0 - E0
+itheta2 = theta2*2*E0 - E0
 initial_theta = np.concatenate([theta1.flat, theta2.flat])
 
 lam =0
 alpha =1
-max_itr = 200
+max_itr = 1000
+
+[J,grad1,grad2,h_train]=cost_function_NN1_(itheta1,itheta2, hlSize, numLabel, x_train, y_train)
+print(J.shape, grad1.shape,grad2.shape,h_train.shape)
+
 
 # checking if back propogation is working
-J , grad,h = cost_function_NN1(initial_theta, hlSize, numLabel, x_train, y_train)
-approxGrad = gradient_check(initial_theta, hlSize, numLabel, x_train, y_train)
+J , grad1,grad2,h = cost_function_NN1_(itheta1,itheta2, hlSize, numLabel, x_train, y_train)
+approxGrad1,approxGrad2 = gradient_check_(itheta1,itheta2, hlSize, numLabel, x_train, y_train)
 
-for i in range(grad.shape[0]):
-  print( "{}      {} " .format(grad[i] , approxGrad[i]))
+for i in range(grad1.shape[0]):
+    for j in range(grad1.shape[1]):
+        print( "{}      {} " .format(grad1[i:i+1,j:j+1] , approxGrad1[i:i+1,j:j+1]))
+        
+for i in range(grad2.shape[0]):
+    for j in range(grad2.shape[1]):
+        print( "{}      {} " .format(grad2[i:i+1,j:j+1] , approxGrad2[i:i+1,j:j+1]))
 
-theta,J_hist = gradient_descent_NN(x_train, y_train, initial_theta, lam, max_itr, alpha, hlSize)
-
-i=np.arange(1,201,1) 
+print(itheta1)
+theta1,theta2,J_hist = gradient_descent_NN_(x_train, y_train, itheta1,itheta2, lam, max_itr, alpha, hlSize)
+print(theta1)
+i=np.arange(1,1001,1) 
 plt.plot(i,J_hist)
 plt.show()   
 
 
-learning_curve(hlSize,numLabel,x_train, x_val, y_train, y_val, theta, lam)
 
-[J,grad,h_train]=cost_function_NN1(theta, hlSize, numLabel, x_train, y_train)
+#learning_curve(hlSize,numLabel,x_train, x_val, y_train, y_val, theta, lam)
+
+[J,g1,g2,h_train]=cost_function_NN1_(theta1,theta2, hlSize, numLabel, x_train, y_train)
 h_train,acc=prediction(h_train,y_train)
 print("\naccuracy (train):  ",acc)
 
-[J,grad,h_test]=cost_function_NN1(theta, hlSize, numLabel, x_test, y_test)
+[J,g1,g2,h_test]=cost_function_NN1_(theta1,theta2, hlSize, numLabel, x_test, y_test)
 print(h_test)
 h_test,acc=prediction(h_test,y_test)
 
@@ -334,4 +375,5 @@ print("\naccuracy:  ",acc)
 for i in range(y_test.shape[0]):
     print( "{}      {} " .format(h_test[i] , y_test[i]))
     
+ 
     
